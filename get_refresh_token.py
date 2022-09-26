@@ -11,7 +11,7 @@ from spotipy.oauth2 import SpotifyOAuth
 config = {**dotenv_values("sample.env"), **dotenv_values(".env"), **os.environ}
 
 # Authenticate
-scopes = ["playlist-read-private", "playlist-modify-private"]
+scopes = ["playlist-read-private", "playlist-modify-private", "playlist-modify-public"]
 auth_manager = SpotifyOAuth(
     scope=scopes,
     client_id=config["CLIENT_ID"],

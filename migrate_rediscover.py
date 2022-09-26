@@ -8,7 +8,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 
-logger = logging.getLogger("discovered-weekly")
+logger = logging.getLogger("migrate-rediscover")
 handler = logging.StreamHandler(stream=sys.stdout)
 handler.setFormatter(logging.Formatter(fmt="%(asctime)s : %(levelname)s : %(message)s"))
 logger.addHandler(handler)
@@ -27,13 +27,15 @@ def main():
         config["USERNAME"],
         config["REFRESH_TOKEN"],
     )
-
-    playlist_date, dw_uris = parse_this_week(
-        client, config["DISCOVER_WEEKLY_PLAYLIST_ID"]
-    )
-    logger.info(f"Found this week's playlist for {playlist_date}")
-    logger.info("Adding to all time playlist")
-    add_to_all_time_playlist(client, dw_uris, config["ALL_DISCOVERED_PLAYLIST_ID"])
+	
+    playlists = get_playlists(client, match='Rediscover')
+    for playlist in playlists:
+        playlist_date, dw_uris = parse_this_week(
+            client, playlist['id']
+        )
+        logger.info(f"Found this week's playlist for {playlist_date}")
+        logger.info("Adding to all time playlist")
+        add_to_all_time_playlist(client, dw_uris, config["ALL_DISCOVERED_PLAYLIST_ID"])
 
     #logger.info("Adding to the weekly archive")
     #add_to_weekly_archive(client, config["USERNAME"], playlist_date, dw_uris)
@@ -54,6 +56,13 @@ def load_client(client_id, client_secret, redirect_uri, username, refresh_token)
     auth_manager.refresh_access_token(refresh_token)
     client = spotipy.Spotify(auth_manager=auth_manager)
     return client
+
+
+def get_playlists(client, match=None):
+    playlists = client.current_user_playlists()['items']
+    if match:
+    	playlists = [x for x in playlists if match in x['name']]
+    return playlists
 
 
 def parse_this_week(client, discover_weekly_playlist_id):
@@ -92,7 +101,7 @@ def add_to_all_time_playlist(client, dw_uris, all_discovered_playlist_id):
         )
         return
 
-    client.playlist_add_items(all_discovered_playlist_id, dw_uris, 0)
+    client.playlist_add_items(all_discovered_playlist_id, dw_uris)
 
 
 def add_to_weekly_archive(client, username, playlist_date, dw_uris):
