@@ -74,15 +74,14 @@ def add_to_all_time_playlist(client, dw_uris, all_discovered_playlist_id):
 
     # Determine total number of tracks
     total = client.playlist(all_discovered_playlist_id)["tracks"]["total"]
-    # Now, query for the last 5 tracks
-    offset = max(0, total - 5)
-    last_five = client.playlist_items(all_discovered_playlist_id, offset=offset)
-    # If the last 5 tracks match the last 5 from the current week, then we've already added
+    # Now, query for the first 5 tracks
+    last_five = client.playlist_items(all_discovered_playlist_id, offset=0, limit=5)
+    # If the first 5 tracks match the last 5 from the current week, then we've already added
     # this week's playlist.
     match = len(last_five["items"]) >= 5 and all(
         [
             dw_uri == item["track"]["uri"]
-            for dw_uri, item in zip(dw_uris[-5:], last_five["items"])
+            for dw_uri, item in zip(dw_uris[:5], last_five["items"])
         ]
     )
     if match:
