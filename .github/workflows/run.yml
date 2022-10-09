@@ -3,8 +3,7 @@ name: discovered-weekly
 on:
   workflow_dispatch:
   schedule: 
-   # Run every Tuesday at 0 UTC
-    - cron: '0 0 * * 2'
+    - cron: '0 4 * * 1,4'
 
 jobs:
   build:
@@ -34,5 +33,7 @@ jobs:
         USERNAME: ${{ secrets.USERNAME }}
         DISCOVER_WEEKLY_PLAYLIST_ID: ${{ secrets.DISCOVER_WEEKLY_PLAYLIST_ID }}
         ALL_DISCOVERED_PLAYLIST_ID: ${{ secrets.ALL_DISCOVERED_PLAYLIST_ID }}
+        MUSIC_RADAR: ${{ secrets.MUSIC_RADAR }}
+        ALL_MUSIC_RADAR: ${{ secrets.ALL_MUSIC_RADAR }}
       run: |
         python discovered_weekly.py
